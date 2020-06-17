@@ -1,0 +1,35 @@
+{
+  "name": "instagram-repost",
+  "version": "1.0.0",
+  "description": "",
+  "main": "upload.js",
+  "scripts": {
+    "collectors": ""
+  },
+  "keywords": [
+    "instagram"
+  ],
+  "author": "AjayKumbhare",
+  "license": "ISC",
+  "dependencies": {
+    "@types/lodash": "^4.14.155",
+    "@types/node-fetch": "^2.5.7",
+    "bluebird": "^3.7.2",
+    "inquirer": "^7.1.0",
+    "instagram-id-to-url-segment": "0.0.0",
+    "instagram-private-api": "^1.39.1",
+    "lodash": "^4.17.15",
+    "mongoose": "^5.9.7",
+    "node-fetch": "^2.6.0",
+    "useragent-from-seed": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^6.5.0",
+    "@types/luxon": "^1.22.0",
+    "@types/mongoose": "^5.7.10",
+    "request-promise": "^4.2.5",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.5",
+    "util": "^0.12.2"
+  }
+}

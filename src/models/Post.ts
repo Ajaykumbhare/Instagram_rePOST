@@ -26,7 +26,7 @@ export interface IPost extends Document {
   caption: string | null;
   carousel_media: CarouselMedia[];
   status: number;
-  timestamp: Date;
+  timestamp: number;
 }
 
 const PostSchema: Schema = new Schema({

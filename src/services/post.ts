@@ -1,7 +1,6 @@
 import Post from "../models/Post";
 import User from "../models/User";
 import Bluebird from "bluebird";
-import { isArray } from "util";
 import { uploadPhoto, uploadVideo, uploadAlbums } from "./services";
 import seconds from "../utilities/seconds";
 import sleep from "../utilities/sleep";
@@ -9,7 +8,7 @@ import _ from "lodash";
 import { hashTag } from "../hashTag";
 
 const getURL = (post: any): string | null =>
-  isArray(post)
+  Array.isArray(post)
     ? post
         .map((x: any) => (x.candidates ? x.candidates[0].url : null))
         .toString()
@@ -49,7 +48,7 @@ const flatPosts = (obj: any) =>
         user: obj.user,
         caption: obj.caption,
         isIGTV: isIGTV(
-          isArray(obj.image_versions2)
+          Array.isArray(obj.image_versions2)
             ? obj.image_versions2[0]
             : obj.image_versions2
         ),

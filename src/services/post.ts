@@ -1,11 +1,13 @@
 import Post from "../models/Post";
 import User from "../models/User";
+import Follow from "../models/Follow";
 import Bluebird from "bluebird";
 import { uploadPhoto, uploadVideo, uploadAlbums } from "./services";
 import seconds from "../utilities/seconds";
 import sleep from "../utilities/sleep";
 import _ from "lodash";
 import { hashTag } from "../hashTag";
+import env from "../env";
 
 const getURL = (post: any): string | null =>
   Array.isArray(post)
@@ -61,15 +63,15 @@ const flatPosts = (obj: any) =>
         caption: obj.caption,
       };
 
-const caption = (post: any) => `repost from @${post.user.username} \u2063\n ${
-  post.caption
-} \u2063\n ${_.sampleSize(
-  hashTag.hashtags,
-  Math.floor(Math.random() * (5 - 3 + 1)) + 3
-)
-  .toString()
-  .replace(/,/g, " ")}
-          `;
+const caption = (post: any) =>
+  `repost from @${post.user.username} \u2063\n ${
+    post.caption
+  } \u2063\n ${_.sampleSize(
+    hashTag.hashtags,
+    Math.floor(Math.random() * (7 - 5 + 1)) + 5
+  )
+    .toString()
+    .replace(/,/g, " ")}`;
 
 const handleUplaod = async (posts: any) =>
   await Bluebird.mapSeries(posts, async (post: any) => {
@@ -146,7 +148,13 @@ const find = () =>
   Post.find({ status: 0 })
     .sort({ timestamp: "desc" })
     .populate({ path: "user", select: "username", model: User })
-    .limit(2)
+    .limit(env.POSTLIMIT)
     .then((posts) => posts);
 
-export { find, flatPosts, handleUplaod };
+const findFollowers = () =>
+  Follow.find({ status: false })
+    .sort({ timestamp: "desc" })
+    .limit(env.FOLLOWLIMIT)
+    .lean();
+
+export { find, flatPosts, handleUplaod, findFollowers };

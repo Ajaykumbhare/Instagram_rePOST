@@ -1,6 +1,7 @@
-import { fetchAccountDetails, fetchPosts } from "./services";
+import { fetchAccountDetails, fetchPosts, fetchFollow } from "./services";
 import User from "../models/User";
 import Post from "../models/Post";
+import Follow from "../models/Follow";
 import Bluebird from "bluebird";
 import seconds from "../utilities/seconds";
 import sleep from "../utilities/sleep";
@@ -88,4 +89,33 @@ const saveTodayPosts = async () => {
   }
 };
 
-export { updateProfile, saveTodayPosts };
+const saveFollowers = async () => {
+  try {
+    const users = await User.find().then((res) =>
+      res.map(({ username }) => username)
+    );
+
+    await Bluebird.mapSeries(users, async (uname: string) => {
+      await sleep(seconds(40, 60));
+      const followers = await fetchFollow("./cookie.json", uname);
+      if (followers && followers.length > 0) {
+        await Bluebird.mapSeries(followers, async (follower) => {
+          const userId = await Follow.findOne({ username: uname });
+          if (!userId) {
+            const follow = new Follow({
+              username: follower.username,
+              full_name: follower.full_name,
+            });
+            await follow.save();
+          }
+        });
+      } else {
+        return;
+      }
+    }).catch((e) => console.log(e));
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export { updateProfile, saveTodayPosts, saveFollowers };

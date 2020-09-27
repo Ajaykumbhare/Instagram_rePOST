@@ -3,6 +3,9 @@ import { isToday } from "../utilities/isToday";
 import env from "../env";
 import fs from "fs";
 import { get } from "request-promise";
+import sleep from "../utilities/sleep";
+import seconds from "../utilities/seconds";
+import Follow from "../models/Follow";
 const ig = new IgApiClient();
 
 ig.state.generateDevice(env.USERNAME);
@@ -21,10 +24,22 @@ const fetchAccountDetails = async (cookiePath: string, username: string) => {
   return accountDetails;
 };
 
+const fetchFollow = async (cookiePath: string, username: string) => {
+  try {
+    const cookie = fs.readFileSync(cookiePath, "utf8");
+    await ig.state.deserializeCookieJar(cookie);
+    const userId = await ig.user.getIdByUsername(username);
+    const followersFeed = await ig.feed.accountFollowers(userId);
+    return await followersFeed.items();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const fetchMediaDetails = async (cookiePath: string, mediaId: string) => {
   const cookie = fs.readFileSync(cookiePath, "utf8");
   await ig.state.deserializeCookieJar(cookie);
-  const info = await ig.media.info("2325853781377659864");
+  const info = await ig.media.info(mediaId);
   return info;
 };
 
@@ -117,12 +132,10 @@ const uploadPhoto = async (
     encoding: null,
   });
 
-  const publishResult = await ig.publish.photo({
+  await ig.publish.photo({
     file: imageBuffer,
     caption: caption,
   });
-
-  console.log(publishResult);
 };
 
 const uploadVideo = async (
@@ -146,23 +159,21 @@ const uploadVideo = async (
   });
 
   if (isIGTV) {
-    const publishResult = await ig.publish
+    await ig.publish
       .igtvVideo({
         video: videoBuffer,
         coverFrame: imageBuffer,
         title: caption,
       })
       .catch((e) => console.log(e));
-    console.log(publishResult);
   } else {
-    const publishResult = await ig.publish
+    await ig.publish
       .video({
         video: videoBuffer,
         coverImage: imageBuffer,
         caption: caption,
       })
       .catch((e) => console.log(e));
-    console.log(publishResult);
   }
 };
 
@@ -206,12 +217,31 @@ const uploadAlbums = async (
     .catch((e) => console.log(e));
 };
 
+const follow = async (cookiePath: string, username: string) => {
+  try {
+    const cookie = fs.readFileSync(cookiePath, "utf8");
+    await ig.state.deserializeCookieJar(cookie);
+    await sleep(seconds(40, 60));
+    const userId = await ig.user.getIdByUsername(username);
+    await ig.entity.profile(userId.toString()).checkFollow();
+    await Follow.findOneAndUpdate(
+      { username: username },
+      { status: true }
+    ).exec();
+    console.log(`follow : ${username}`);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export {
   fetchAccountDetails,
+  fetchFollow,
   fetchPosts,
   fetchUserStories,
   uploadPhoto,
   uploadVideo,
   uploadAlbums,
   fetchMediaDetails,
+  follow,
 };

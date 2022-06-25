@@ -20,7 +20,7 @@
     "instagram-private-api": "^1.39.1",
     "lodash": "^4.17.15",
     "mongoose": "^5.9.7",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "useragent-from-seed": "^1.0.1"
   },
   "devDependencies": {
